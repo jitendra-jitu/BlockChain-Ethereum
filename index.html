@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrontEnd_SmartContract</title>
+
+    <!-- Web3.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            height: 80vh;
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        input {
+            margin-right: 10px;
+        }
+
+        .output {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <div>
+        <h2>Interact with Smart Contract</h2>
+        <input type="text" id="depositAmount" placeholder="Enter deposit amount">
+        <button id="depositButton">Deposit Amount</button><br><br>
+
+        <input type="text" id="withdrawAmount" placeholder="Enter withdraw amount">
+        <button id="withdrawButton">Withdraw Amount</button><br><br>
+
+        <button id="balanceButton">Fetch Balance</button>
+        <div class="output" id="output">Output will appear here</div>
+    </div>
+
+
+
+    <script>
+
+        //currentProvider is Deprecated
+        document.addEventListener('DOMContentLoaded', function () {
+            let web3;
+
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                console.log("Connected to Ethereum provider.");
+            }
+
+
+
+
+            let address = "0xae2AE6Eec53Edace2B131675921968622b3f3dcE";
+            let ABI = [
+                {
+                    "constant": false,
+                    "inputs": [{ "name": "amount", "type": "int256" }],
+                    "name": "Deposit",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "constant": false,
+                    "inputs": [{ "name": "amount", "type": "int256" }],
+                    "name": "withDraw",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "constant": true,
+                    "inputs": [],
+                    "name": "getBalance",
+                    "outputs": [{ "name": "", "type": "int256" }],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                }
+            ];
+
+            const Contract = new web3.eth.Contract(ABI, address);
+            const balanceButton = document.querySelector('#balanceButton');
+            const output = document.getElementById('output');
+
+            balanceButton.onclick = async () => {
+
+                // Fetch balance from the smart contract
+                const balance = await Contract.methods.getBalance().call();
+                output.innerText = `Balance: ${balance}`;
+            };
+
+
+            depositButton.onclick = async () => {
+              
+                const amount = parseInt(document.getElementById('depositAmount').value);
+
+                web3.eth.getAccounts().then((accounts)=>{
+                    return Contract.methods.Deposit(amount).send({from:accounts[0]})
+                })
+
+                output.innerText =`Successfully deposited: ${amount}`;
+            };
+
+
+
+
+            withdrawButton.onclick = async () => {
+              
+                var amount=parseInt($("#withdrawAmount").val())
+
+                web3.eth.getAccounts().then((accounts)=>{
+                    return Contract.methods.withDraw(amount).send({from:accounts[0]})
+                })
+
+                output.innerText =`Successfully withdrawn: ${amount}`;
+            };
+    
+        })
+            
+
+
+
+    </script>
+
+</body>
+
+</html>
